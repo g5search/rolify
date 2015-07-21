@@ -54,6 +54,21 @@ module Admin
   end
 end
 
+# has_many :through models
+class Employee < ActiveRecord::Base
+  rolify :has_many_through => true,
+         :role_cname => "Permission"
+end
+
+class EmployeePermission < ActiveRecord::Base
+  belongs_to :employee
+  belongs_to :permission
+end
+
+class Permission < ActiveRecord::Base
+  has_many :employee_permissions
+  has_many :employees, :through => :employee_permissions
+end
 
 # Resources classes
 class Forum < ActiveRecord::Base

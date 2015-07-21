@@ -1,7 +1,7 @@
 # Users
-[ User, Customer, Admin::Moderator ].each do |user|
+[ User, Customer, Admin::Moderator, Employee ].each do |user|
   user.destroy_all
-  
+
   user.create(:login => "admin")
   user.create(:login => "moderator")
   user.create(:login => "god")
@@ -9,7 +9,7 @@
 end
 
 # Roles
-[ Role, Privilege, Admin::Right ].each do |role|
+[ Role, Privilege, Admin::Right, Permission ].each do |role|
   role.destroy_all
 end
 
