@@ -5,7 +5,7 @@ shared_context "global role", :scope => :global do
     user_class.first
   end
   
-  before(:all) do
+  before(:each) do
     load_roles
     create_other_roles
   end
@@ -26,7 +26,7 @@ end
 shared_context "class scoped role", :scope => :class do
   subject { manager }
   
-  before(:all) do
+  before(:each) do
     load_roles
     create_other_roles
   end
@@ -50,7 +50,7 @@ end
 shared_context "instance scoped role", :scope => :instance do
   subject { moderator }
   
-  before(:all) do
+  before(:each) do
     load_roles
     create_other_roles
   end
@@ -72,7 +72,7 @@ end
 shared_context "mixed scoped roles", :scope => :mixed do
   subject { user_class }
   
-  before(:all) do
+  before(:each) do
     role_class.destroy_all
   end
     

@@ -1,5 +1,5 @@
 shared_examples_for Rolify::Dynamic do
-  before(:all) do
+  before(:each) do
     Rolify.dynamic_shortcuts = true
     role_class.destroy_all
     rolify_options = { :role_cname => role_class.to_s }
@@ -103,7 +103,7 @@ shared_examples_for Rolify::Dynamic do
     subject { user_class.first }
 
     context "using a global role" do
-      before(:all) do
+      before(:each) do
         other_guy = user_class.last
         other_guy.add_role :superman
       end
@@ -117,7 +117,7 @@ shared_examples_for Rolify::Dynamic do
     end
 
     context "using a resource scope role" do
-      before(:all) do
+      before(:each) do
         other_guy = user_class.last
         other_guy.add_role :batman, Forum.first
       end

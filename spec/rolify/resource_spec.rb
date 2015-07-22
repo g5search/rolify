@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Rolify::Resource do
-  before(:all) do
+  before(:each) do
     reset_defaults
     silence_warnings { User.rolify }
     Forum.resourcify
@@ -479,7 +479,7 @@ describe Rolify::Resource do
   end
 
   describe "#roles" do
-    before(:all) { Role.destroy_all }
+    before(:each) { Role.destroy_all }
     subject { Forum.first }
 
     it { should respond_to :roles }

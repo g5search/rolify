@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe "Resourcify and rolify on the same model" do
   
-  before(:all) do
+  before(:each) do
     reset_defaults
     Role.delete_all
     HumanResource.delete_all

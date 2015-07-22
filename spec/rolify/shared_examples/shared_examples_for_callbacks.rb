@@ -1,5 +1,5 @@
 shared_examples_for "Rolify.callbacks" do
-  before(:all) do
+  before(:each) do
     reset_defaults
     Rolify.dynamic_shortcuts = false
     role_class.destroy_all

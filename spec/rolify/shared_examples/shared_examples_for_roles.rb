@@ -9,7 +9,7 @@ require "rolify/shared_examples/shared_examples_for_finders"
 
 
 shared_examples_for Rolify::Role do
-  before(:all) do
+  before(:each) do
     reset_defaults
     Rolify.dynamic_shortcuts = false
     rolify_options = { :role_cname => role_class.to_s }
@@ -22,7 +22,7 @@ shared_examples_for Rolify::Role do
   end
 
   context "in the Instance level" do
-    before(:all) do
+    before(:each) do
       admin = user_class.first
       admin.add_role :admin
       admin.add_role :moderator, Forum.first

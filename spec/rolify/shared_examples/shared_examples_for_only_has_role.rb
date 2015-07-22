@@ -16,7 +16,7 @@ shared_examples_for "#only_has_role?_examples" do |param_name, param_method|
       end
 
       context "with another global role" do
-        before(:all) { role_class.create(:name => "another_global_role") }
+        before(:each) { role_class.create(:name => "another_global_role") }
 
         it { subject.only_has_role?("another_global_role".send(param_method)).should be_falsey }
         it { subject.only_has_role?("another_global_role".send(param_method), :any).should be_falsey }
@@ -66,21 +66,21 @@ shared_examples_for "#only_has_role?_examples" do |param_name, param_method|
 
       context "with another class scoped role" do
         context "on the same resource but with a different name" do
-          before(:all) { role_class.create(:name => "another_class_role", :resource_type => "Forum") }
+          before(:each) { role_class.create(:name => "another_class_role", :resource_type => "Forum") }
 
           it { subject.only_has_role?("another_class_role".send(param_method), Forum).should be_falsey }
           it { subject.only_has_role?("another_class_role".send(param_method), :any).should be_falsey }
         end
 
         context "on another resource with the same name" do
-          before(:all) { role_class.create(:name => "class_role", :resource_type => "Group") }
+          before(:each) { role_class.create(:name => "class_role", :resource_type => "Group") }
 
           it { subject.only_has_role?("class_role".send(param_method), Group).should be_falsey }
           it { subject.only_has_role?("class_role".send(param_method), :any).should be_truthy }
         end
 
         context "on another resource with another name" do
-          before(:all) { role_class.create(:name => "another_class_role", :resource_type => "Group") }
+          before(:each) { role_class.create(:name => "another_class_role", :resource_type => "Group") }
 
           it { subject.only_has_role?("another_class_role".send(param_method), Group).should be_falsey }
           it { subject.only_has_role?("another_class_role".send(param_method), :any).should be_falsey }
@@ -128,35 +128,35 @@ shared_examples_for "#only_has_role?_examples" do |param_name, param_method|
 
       context "with another instance scoped role" do
         context "on the same resource but with a different role name" do
-          before(:all) { role_class.create(:name => "another_instance_role", :resource => Forum.first) }
+          before(:each) { role_class.create(:name => "another_instance_role", :resource => Forum.first) }
 
           it { subject.only_has_role?("another_instance_role".send(param_method), Forum.first).should be_falsey }
           it { subject.only_has_role?("another_instance_role".send(param_method), :any).should be_falsey }
         end
 
         context "on another resource of the same type but with the same role name" do
-          before(:all) { role_class.create(:name => "moderator", :resource => Forum.last) }
+          before(:each) { role_class.create(:name => "moderator", :resource => Forum.last) }
 
           it { subject.only_has_role?("instance_role".send(param_method), Forum.last).should be_falsey }
           it { subject.only_has_role?("instance_role".send(param_method), :any).should be_truthy }
         end
 
         context "on another resource of different type but with the same role name" do
-          before(:all) { role_class.create(:name => "moderator", :resource => Group.last) }
+          before(:each) { role_class.create(:name => "moderator", :resource => Group.last) }
 
           it { subject.only_has_role?("instance_role".send(param_method), Group.last).should be_falsey }
           it { subject.only_has_role?("instance_role".send(param_method), :any).should be_truthy }
         end
 
         context "on another resource of the same type and with another role name" do
-          before(:all) { role_class.create(:name => "another_instance_role", :resource => Forum.last) }
+          before(:each) { role_class.create(:name => "another_instance_role", :resource => Forum.last) }
 
           it { subject.only_has_role?("another_instance_role".send(param_method), Forum.last).should be_falsey }
           it { subject.only_has_role?("another_instance_role".send(param_method), :any).should be_falsey }
         end
 
         context "on another resource of different type and with another role name" do
-          before(:all) { role_class.create(:name => "another_instance_role", :resource => Group.first) }
+          before(:each) { role_class.create(:name => "another_instance_role", :resource => Group.first) }
 
           it { subject.only_has_role?("another_instance_role".send(param_method), Group.first).should be_falsey }
           it { subject.only_has_role?("another_instance_role".send(param_method), :any).should be_falsey }
