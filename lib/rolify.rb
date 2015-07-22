@@ -19,16 +19,27 @@ module Rolify
     self.role_cname = options[:role_cname]
     self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
 
-    default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
-    options.reverse_merge!({:role_join_table_name => default_join_table})
-    self.role_join_table_name = options[:role_join_table_name]
+    if options.delete(:has_many_through)
+      # TODO: handle namespacing correctly
+      default_join_table = "#{self.to_s.underscore}_#{self.role_table_name}"
+      options.reverse_merge!({:role_join_table_name => default_join_table})
+      self.role_join_table_name = options[:role_join_table_name]
+    
+      # TODO: do we really want to re-purpose role_join_table_name this way?
+      has_many role_join_table_name.to_sym
+      has_many :roles, :through => role_join_table_name.to_sym
+    else
+      default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
+      options.reverse_merge!({:role_join_table_name => default_join_table})
+      self.role_join_table_name = options[:role_join_table_name]
 
-    rolify_options = { :class_name => options[:role_cname].camelize }
-    rolify_options.merge!({ :join_table => self.role_join_table_name }) if Rolify.orm == "active_record"
-    rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove, :inverse_of ].include? k.to_sym })
+      rolify_options = { :class_name => options[:role_cname].camelize }
+      rolify_options.merge!({ :join_table => self.role_join_table_name }) if Rolify.orm == "active_record"
+      rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove, :inverse_of ].include? k.to_sym })
 
-    has_and_belongs_to_many :roles, rolify_options
-
+      has_and_belongs_to_many :roles, rolify_options
+    end
+    
     self.adapter = Rolify::Adapter::Base.create("role_adapter", self.role_cname, self.name)
 
     #use strict roles

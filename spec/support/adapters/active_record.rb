@@ -70,7 +70,7 @@ end
 
 class EmployeePermission < ActiveRecord::Base
   belongs_to :employee
-  belongs_to :permission
+  belongs_to :role, class_name: 'Permission'
 end
 
 class Permission < ActiveRecord::Base
