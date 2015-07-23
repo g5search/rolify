@@ -24,10 +24,13 @@ module Rolify
       default_join_table = "#{self.to_s.underscore}_#{self.role_table_name}"
       options.reverse_merge!({:role_join_table_name => default_join_table})
       self.role_join_table_name = options[:role_join_table_name]
-    
+
+      rolify_options = {:through => role_join_table_name.to_sym}
+      rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove ].include? k.to_sym })
+
       # TODO: do we really want to re-purpose role_join_table_name this way?
       has_many role_join_table_name.to_sym
-      has_many :roles, :through => role_join_table_name.to_sym
+      has_many :roles, rolify_options
     else
       default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
       options.reverse_merge!({:role_join_table_name => default_join_table})

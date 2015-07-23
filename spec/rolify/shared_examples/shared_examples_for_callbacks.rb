@@ -12,8 +12,8 @@ shared_examples_for "Rolify.callbacks" do
   describe "rolify association callbacks", :if => (Rolify.orm == "active_record") do
     describe "before_add" do
       it "should receive callback" do
-        rolify_options[:before_add] = :role_callback
-        silence_warnings { user_class.rolify rolify_options }
+        opts = rolify_options.merge(:before_add => :role_callback)
+        silence_warnings { user_class.rolify opts }
         @user = user_class.first
         @user.stub(:role_callback)
         @user.should_receive(:role_callback)
@@ -23,8 +23,8 @@ shared_examples_for "Rolify.callbacks" do
 
     describe "after_add" do
       it "should receive callback" do
-        rolify_options[:after_add] = :role_callback
-        silence_warnings { user_class.rolify rolify_options }
+        opts = rolify_options.merge(:after_add => :role_callback)
+        silence_warnings { user_class.rolify opts }
         @user = user_class.first
         @user.stub(:role_callback)
         @user.should_receive(:role_callback)
@@ -34,8 +34,8 @@ shared_examples_for "Rolify.callbacks" do
 
     describe "before_remove" do
       it "should receive callback" do
-        rolify_options[:before_remove] = :role_callback
-        silence_warnings { user_class.rolify rolify_options }
+        opts = rolify_options.merge(:before_remove => :role_callback)
+        silence_warnings { user_class.rolify opts }
         @user = user_class.first
         @user.add_role :admin
         @user.stub(:role_callback)
@@ -47,8 +47,8 @@ shared_examples_for "Rolify.callbacks" do
 
     describe "after_remove" do
       it "should receive callback" do
-        rolify_options[:after_remove] = :role_callback
-        silence_warnings { user_class.rolify rolify_options }
+        opts = rolify_options.merge(:after_remove => :role_callback)
+        silence_warnings { user_class.rolify opts }
         @user = user_class.first
         @user.add_role :admin
         @user.stub(:role_callback)
