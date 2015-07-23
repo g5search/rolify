@@ -22,6 +22,8 @@ attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :
     self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
 
     if options.delete(:has_many_through)
+      raise ArgumentError.new("has_many :through is not supported for this orm") unless Rolify.orm == "active_record"
+
       default_join_cname = "#{self.to_s}#{self.role_cname.camelize}"
       options.reverse_merge!({:role_join_cname => default_join_cname})
       self.role_join_cname = options[:role_join_cname]
