@@ -8,55 +8,53 @@ require 'rolify/role'
 module Rolify
   extend Configure
 
-attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :role_table_name, :strict_rolify,
-              :role_join_cname
-
+  attr_writer :adapter, :resource_adapter, :role_cname, :role_table_name,
+              :role_join_cname, :role_join_association, :role_join_table_name
+  attr_accessor :strict_rolify
+  
   @@resource_types = []
 
   def rolify(options = {})
     include Role
     extend Dynamic if Rolify.dynamic_shortcuts
 
-    options.reverse_merge!({:role_cname => 'Role'})
     self.role_cname = options[:role_cname]
-    self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
+    self.role_table_name = options[:role_table_name]
 
-    if options.delete(:has_many_through)
-      raise ArgumentError.new("has_many :through is not supported for this orm") unless Rolify.orm == "active_record"
-
-      default_join_cname = "#{self.to_s}#{self.role_cname.camelize}"
-      options.reverse_merge!({:role_join_cname => default_join_cname})
-      self.role_join_cname = options[:role_join_cname]
-
-      rolify_options = {:through => role_join_cname.tableize.to_sym}
-      rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove ].include? k.to_sym })
-
-      has_many rolify_options[:through]
-
-      if Rolify.orm == "active_record"
-        has_many :roles, rolify_options
-      else
-        define_method(:roles) do
-          role_foreign_key = self.class.role_join_cname.constantize.reflect_on_association(:role)[:foreign_key]
-          self.class.role_class.in(id: self.send(rolify_options[:through]).pluck(role_foreign_key))
-        end
+    if options[:has_many_through]
+      unless Rolify.orm == "active_record"
+        raise ArgumentError.new("has_many :through is not supported for this orm")
       end
+
+      setup_has_many_through(options)
     else
-      default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
-      options.reverse_merge!({:role_join_table_name => default_join_table})
-      self.role_join_table_name = options[:role_join_table_name]
-
-      rolify_options = { :class_name => options[:role_cname].camelize }
-      rolify_options.merge!({ :join_table => self.role_join_table_name }) if Rolify.orm == "active_record"
-      rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove, :inverse_of ].include? k.to_sym })
-
-      has_and_belongs_to_many :roles, rolify_options
+      setup_has_and_belongs_to_many(options)
     end
     
     self.adapter = Rolify::Adapter::Base.create("role_adapter", self.role_cname, self.name)
 
     #use strict roles
     self.strict_rolify = true if options[:strict]
+  end
+
+  def role_cname
+    @role_cname ||= 'Role'
+  end
+
+  def role_table_name
+    @role_table_name ||= role_cname.tableize.gsub(/\//, "_")
+  end
+
+  def role_join_cname
+    @role_join_cname ||= "#{self.to_s}#{self.role_cname.to_s}"
+  end
+
+  def role_join_association
+    @role_join_association ||= role_join_cname.tableize.to_sym
+  end
+
+  def role_join_table_name
+     @role_join_table_name ||= "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
   end
 
   def adapter
@@ -97,4 +95,34 @@ attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :
     @@resource_types
   end
 
+  private
+  def rolify_callbacks(options)
+    options.select do |key, val|
+      callbacks = [:before_add, :after_add, :before_remove, :after_remove, :inverse_of]
+      callbacks.include?(key.to_sym)
+    end
+  end
+
+  def setup_has_many_through(options)
+    self.role_join_cname = options[:role_join_cname]
+    self.role_join_association = options[:role_join_association]
+
+    rolify_options = {:through => role_join_association}
+    rolify_options.merge!(rolify_callbacks(options))
+
+    has_many role_join_association, class_name: role_join_cname
+    has_many :roles, rolify_options
+  end
+
+  def setup_has_and_belongs_to_many(options)
+    self.role_join_table_name = options[:role_join_table_name]
+
+    rolify_options = {:class_name => role_cname.camelize}
+    if Rolify.orm == "active_record"
+      rolify_options.merge!({:join_table => self.role_join_table_name})
+    end
+    rolify_options.merge!(rolify_callbacks(options))
+
+    has_and_belongs_to_many :roles, rolify_options
+  end
 end
