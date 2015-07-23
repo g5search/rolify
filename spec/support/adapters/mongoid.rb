@@ -136,6 +136,85 @@ module Admin
   end
 end
 
+# Simulated has_many :through
+class Employee
+  include Mongoid::Document
+
+  rolify :has_many_through => true,
+         :role_cname => "Permission"
+
+  field :login, :type => String
+end
+
+class EmployeePermission
+  include Mongoid::Document
+
+  belongs_to :employee
+  belongs_to :role, :class_name => "Permission", :foreign_key => :permission_id
+end
+
+class Permission
+  include Mongoid::Document
+
+  has_many :employee_permissions
+
+  def employees
+    Employee.in(id: employee_permissions.pluck(:employee_id))
+  end
+
+  belongs_to :resource, :polymorphic => true
+  scopify
+
+  field :name, :type => String
+  index(
+    {
+      :name => 1,
+      :resource_type => 1,
+      :resource_id => 1
+    },
+    { :unique => true }
+  )
+end
+
+class Person
+  include Mongoid::Document
+
+  rolify :has_many_through => true,
+         :role_join_cname => "Grant"
+
+  field :login, :type => String
+end
+
+class Grant
+  include Mongoid::Document
+
+  belongs_to :person
+  belongs_to :role, :class_name => "Capability", :foreign_key => :capability_id
+end
+
+class Capability
+  include Mongoid::Document
+
+  has_many :grants
+
+  def people
+    Person.in(id: grants.pluck(:person_id))
+  end
+
+  belongs_to :resource, :polymorphic => true
+  scopify
+
+  field :name, :type => String
+  index(
+    {
+      :name => 1,
+      :resource_type => 1,
+      :resource_id => 1
+    },
+    { :unique => true }
+  )
+end
+
 # Resources classes
 class Forum
   include Mongoid::Document

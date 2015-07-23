@@ -26,11 +26,19 @@ attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :
       options.reverse_merge!({:role_join_cname => default_join_cname})
       self.role_join_cname = options[:role_join_cname]
 
-      rolify_options = {:through => role_join_cname.underscore.to_sym}
+      rolify_options = {:through => role_join_cname.tableize.to_sym}
       rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove ].include? k.to_sym })
 
       has_many rolify_options[:through]
-      has_many :roles, rolify_options
+
+      if Rolify.orm == "active_record"
+        has_many :roles, rolify_options
+      else
+        define_method(:roles) do
+          role_foreign_key = self.class.role_join_cname.constantize.reflect_on_association(:role)[:foreign_key]
+          self.class.role_class.in(id: self.send(rolify_options[:through]).pluck(role_foreign_key))
+        end
+      end
     else
       default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
       options.reverse_merge!({:role_join_table_name => default_join_table})
