@@ -62,12 +62,30 @@ end
 
 class EmployeePermission < ActiveRecord::Base
   belongs_to :employee
-  belongs_to :role, :class_name => 'Permission', :foreign_key => 'permission_id'
+  belongs_to :role, :class_name => "Permission", :foreign_key => "permission_id"
 end
 
 class Permission < ActiveRecord::Base
   has_many :employee_permissions
   has_many :employees, :through => :employee_permissions
+
+  belongs_to :resource, :polymorphic => true
+  extend Rolify::Adapter::Scopes
+end
+
+class Person < ActiveRecord::Base
+  rolify :has_many_through => true,
+         :role_join_cname => "Grant"
+end
+
+class Grant < ActiveRecord::Base
+  belongs_to :person
+  belongs_to :role, :class_name => "Capability", :foreign_key => "capability_id"
+end
+
+class Capability < ActiveRecord::Base
+  has_many :grants
+  has_many :people, :through => :grants
 
   belongs_to :resource, :polymorphic => true
   extend Rolify::Adapter::Scopes
