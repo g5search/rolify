@@ -12,7 +12,11 @@ describe "Using Rolify with custom User and Role class names" do
   def role_class
     Privilege
   end
-  
+
+  def rolify_options
+    {:role_cname => role_class.to_s}
+  end
+
   it_behaves_like Rolify::Role
   it_behaves_like "Role.scopes"
   it_behaves_like Rolify::Dynamic
