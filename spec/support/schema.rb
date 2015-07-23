@@ -3,10 +3,10 @@ ActiveRecord::Schema.define do
 
   [ :roles, :privileges, :admin_rights, :permissions ].each do |table|
     create_table(table) do |t|
-    t.string :name
-    t.references :resource, :polymorphic => true
+      t.string :name
+      t.references :resource, :polymorphic => true
 
-    t.timestamps null: false
+      t.timestamps null: false
     end
   end
 

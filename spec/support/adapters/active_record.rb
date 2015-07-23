@@ -70,12 +70,15 @@ end
 
 class EmployeePermission < ActiveRecord::Base
   belongs_to :employee
-  belongs_to :role, class_name: 'Permission'
+  belongs_to :role, :class_name => 'Permission', :foreign_key => 'permission_id'
 end
 
 class Permission < ActiveRecord::Base
   has_many :employee_permissions
   has_many :employees, :through => :employee_permissions
+
+  belongs_to :resource, :polymorphic => true
+  extend Rolify::Adapter::Scopes
 end
 
 # Resources classes
