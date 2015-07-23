@@ -13,6 +13,11 @@ describe "Using Rolify with has_many :through relationship" do
     Permission
   end
 
+  def rolify_options
+    {:role_cname => role_class.to_s,
+     :has_many_through => true}
+  end
+
   it_behaves_like Rolify::Role
   it_behaves_like "Role.scopes"
   it_behaves_like Rolify::Dynamic

@@ -12,11 +12,16 @@ describe "Rolify.namespace" do
   def role_class
     Admin::Right
   end
-  
+
+  def rolify_options
+    {:role_cname => role_class.to_s,
+     :role_join_table_name => join_table}
+  end
+
   def join_table
     "moderators_rights"
   end
-  
+
   it_behaves_like Rolify::Role
   it_behaves_like "Role.scopes"
   it_behaves_like Rolify::Dynamic
