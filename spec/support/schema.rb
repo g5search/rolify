@@ -1,7 +1,7 @@
 ActiveRecord::Schema.define do
   self.verbose = false
 
-  [ :roles, :privileges, :admin_rights, :permissions ].each do |table|
+  [ :roles, :privileges, :admin_rights, :permissions, :capabilities ].each do |table|
     create_table(table) do |t|
       t.string :name
       t.references :resource, :polymorphic => true
@@ -10,7 +10,7 @@ ActiveRecord::Schema.define do
     end
   end
 
-[ :users, :human_resources, :customers, :admin_moderators, :strict_users, :employees ].each do |table|
+[ :users, :human_resources, :customers, :admin_moderators, :strict_users, :employees, :people ].each do |table|
     create_table(table) do |t|
       t.string :login
     end
@@ -44,6 +44,13 @@ ActiveRecord::Schema.define do
   create_table(:employee_permissions) do |t|
     t.references :employee
     t.references :permission
+
+    t.timestamps null: false
+  end
+
+  create_table(:grants) do |t|
+    t.references :person
+    t.references :capability
 
     t.timestamps null: false
   end
