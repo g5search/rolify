@@ -118,9 +118,6 @@ end
 class Employee
   include Mongoid::Document
 
-  rolify :has_many_through => true,
-         :role_cname => "Permission"
-
   field :login, :type => String
 end
 
@@ -156,9 +153,6 @@ end
 
 class Person
   include Mongoid::Document
-
-  rolify :has_many_through => true,
-         :role_join_cname => "Grant"
 
   field :login, :type => String
 end
