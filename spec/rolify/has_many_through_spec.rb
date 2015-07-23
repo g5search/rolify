@@ -35,7 +35,8 @@ describe "Using Rolify with has_many :through relationship" do
     end
 
     def rolify_options
-      {:has_many_through => true,
+      {:role_cname => role_class.to_s,
+       :has_many_through => true,
        :role_join_cname => "Grant"}
     end
 

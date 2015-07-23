@@ -8,7 +8,9 @@ require 'rolify/role'
 module Rolify
   extend Configure
 
-  attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :role_table_name, :strict_rolify
+attr_accessor :role_cname, :adapter, :resource_adapter, :role_join_table_name, :role_table_name, :strict_rolify,
+              :role_join_cname
+
   @@resource_types = []
 
   def rolify(options = {})
@@ -20,16 +22,14 @@ module Rolify
     self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
 
     if options.delete(:has_many_through)
-      # TODO: handle namespacing correctly
-      default_join_table = "#{self.to_s.underscore}_#{self.role_table_name}"
-      options.reverse_merge!({:role_join_table_name => default_join_table})
-      self.role_join_table_name = options[:role_join_table_name]
+      default_join_cname = "#{self.to_s}#{self.role_cname.camelize}"
+      options.reverse_merge!({:role_join_cname => default_join_cname})
+      self.role_join_cname = options[:role_join_cname]
 
-      rolify_options = {:through => role_join_table_name.to_sym}
+      rolify_options = {:through => role_join_cname.underscore.to_sym}
       rolify_options.merge!(options.reject{ |k,v| ![ :before_add, :after_add, :before_remove, :after_remove ].include? k.to_sym })
 
-      # TODO: do we really want to re-purpose role_join_table_name this way?
-      has_many role_join_table_name.to_sym
+      has_many rolify_options[:through]
       has_many :roles, rolify_options
     else
       default_join_table = "#{self.to_s.tableize.gsub(/\//, "_")}_#{self.role_table_name}"
