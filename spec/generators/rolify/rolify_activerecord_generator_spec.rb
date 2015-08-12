@@ -260,4 +260,126 @@ describe Rolify::Generators::RolifyGenerator, :if => ENV['ADAPTER'] == 'active_r
       end
     end
   end
+
+  describe '--has_many_through with only role model' do
+    before(:all) { arguments %w(Role --has_many_through) }
+
+    before {
+      capture(:stdout) {
+        generator.create_file "app/models/user.rb" do
+          <<-RUBY
+          class User < ActiveRecord::Base
+          end
+          RUBY
+        end
+      }
+      require File.join(destination_root, "app/models/user.rb")
+      run_generator
+    }
+
+    describe 'config/initializers/rolify.rb' do
+      subject { file('config/initializers/rolify.rb') }
+      it { should exist }
+      it { should contain "Rolify.configure do |config|"}
+      it { should contain "# config.use_dynamic_shortcuts" }
+      it { should contain "# config.use_mongoid" }
+    end
+
+    describe 'app/models/role.rb' do
+      subject { file('app/models/role.rb') }
+      it { should exist }
+      it { should contain "class Role < ActiveRecord::Base" }
+      it { should contain "has_many :user_roles" }
+      it { should contain "has_many :users, :through => :user_roles" }
+      it { should contain "belongs_to :resource, :polymorphic => true" }
+      it { should contain "validates :resource_type,\n"
+                          "          :inclusion => { :in => Rolify.resource_types },\n"
+                          "          :allow_nil => true" }
+    end
+
+    describe 'app/models/user.rb' do
+      subject { file('app/models/user.rb') }
+      it { should contain /class User < ActiveRecord::Base\n  rolify :has_many_through => true\n/ }
+    end
+
+    describe 'app/models/user_role.rb' do
+      subject { file('app/models/user_role.rb') }
+
+      it { should exist }
+      it { should contain "class UserRole < ActiveRecord::Base" }
+      it { should contain "belongs_to :user" }
+      it { should contain "belongs_to :role" }
+    end
+
+    describe 'migration file' do
+      subject { migration_file('db/migrate/rolify_create_roles.rb') }
+
+      it { should be_a_migration }
+      it { should contain "create_table(:roles) do" }
+      it { should contain "create_table(:user_roles) do" }
+    end
+  end
+
+  describe 'Specifying User, Role, and Join Models', pending: true do
+    before(:all) { arguments %w(Admin::Role Admin::User Admin::UserRole) }
+
+    before {
+      capture(:stdout) {
+        generator.create_file "app/models/admin/user.rb" do
+          <<-RUBY
+          module Admin
+            class User < ActiveRecord::Base
+              self.table_name_prefix = 'admin_'
+            end
+          end
+          RUBY
+        end
+      }
+      require File.join(destination_root, "app/models/admin/user.rb")
+      run_generator
+    }
+
+    describe 'config/initializers/rolify.rb' do
+      subject { file('config/initializers/rolify.rb') }
+
+      it { should exist }
+      it { should contain "Rolify.configure do |config|"}
+      it { should contain "# config.use_dynamic_shortcuts" }
+      it { should contain "# config.use_mongoid" }
+    end
+
+    describe 'app/models/admin/role.rb' do
+      subject { file('app/models/admin/role.rb') }
+
+      it { should exist }
+      it { should contain "class Admin::Role < ActiveRecord::Base" }
+      it { should contain "has_many :admin_user_roles" }
+      it { should contain "has_many :admin_users, :through => :admin_user_roles" }
+      it { should contain "belongs_to :resource, :polymorphic => true" }
+    end
+
+    describe 'app/models/admin/user.rb' do
+      subject { file('app/models/admin/user.rb') }
+
+      it { should exist }
+      it { should contain /class User < ActiveRecord::Base\n  rolify :role_cname => 'Admin::Role', and so on\n/ }
+    end
+
+    describe 'app/models/admin/user_role.rb' do
+      subject { file('app/models/admin/user_role.rb') }
+
+      it { should exist }
+      it { should contain "class Admin::UserRole < ActiveRecord::Base" }
+      it { should contain "belongs_to :admin_user" }
+      it { should contain "belongs_to :admin_role" }
+    end
+
+    describe 'migration file' do
+      subject { migration_file('db/migrate/rolify_create_admin_roles.rb') }
+
+      it { should be_a_migration }
+      it { should contain "create_table(:admin_roles) do" }
+      it { should contain "create_table(:admin_user_roles) do" }
+    end
+  end
 end
