@@ -311,12 +311,24 @@ describe Rolify::Generators::RolifyGenerator, :if => ENV['ADAPTER'] == 'active_r
       it { should contain "belongs_to :role" }
     end
 
-    describe 'migration file' do
+    describe 'role migration' do
       subject { migration_file('db/migrate/rolify_create_roles.rb') }
 
       it { should be_a_migration }
       it { should contain "create_table(:roles) do" }
+      it { should_not contain "create_table(:users_roles" }
+      it { should_not contain "add_index(:users_roles" }
+    end
+
+    describe 'join model migration' do
+      subject { migration_file('db/migrate/rolify_create_user_roles.rb') }
+
+      it { should be_a_migration }
       it { should contain "create_table(:user_roles) do" }
+      it { should contain "references :user" }
+      it { should contain "references :role" }
+      it { should contain "timestamps" }
+      it { should contain "add_index(:user_roles, [:user_id, :role_id])" }
     end
   end
 

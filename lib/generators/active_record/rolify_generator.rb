@@ -9,6 +9,9 @@ module ActiveRecord
 
       argument :user_cname, :type => :string, :default => "User", :banner => "User"
 
+      class_option :has_many_through, :type => :boolean,
+                                      :default => false
+
       def ensure_user_class_defined
         unless user_class_defined?
           prompt_missing_user
@@ -41,7 +44,11 @@ module ActiveRecord
       private
 
       def join_table
-        user_class.table_name + "_" + table_name
+        if !options.has_many_through
+          user_class.table_name + "_" + table_name
+        else
+          nil
+        end
       end
 
       def user_reference
