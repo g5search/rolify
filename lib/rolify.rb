@@ -11,7 +11,7 @@ module Rolify
   attr_writer :adapter, :resource_adapter, :role_cname, :role_table_name,
               :role_join_cname, :role_join_association, :role_join_table_name
   attr_accessor :strict_rolify
-  
+
   @@resource_types = []
 
   def rolify(options = {})
@@ -30,7 +30,7 @@ module Rolify
     else
       setup_has_and_belongs_to_many(options)
     end
-    
+
     self.adapter = Rolify::Adapter::Base.create("role_adapter", self.role_cname, self.name)
 
     #use strict roles
@@ -111,7 +111,7 @@ module Rolify
     rolify_options.merge!(rolify_callbacks(options))
 
     has_many role_join_association, class_name: role_join_cname
-    has_many :roles, rolify_options
+    has_many :roles, **rolify_options
   end
 
   def setup_has_and_belongs_to_many(options)
