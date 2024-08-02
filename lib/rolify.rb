@@ -70,7 +70,7 @@ module Rolify
     self.role_cname = options[:role_cname]
     self.role_table_name = self.role_cname.tableize.gsub(/\//, "_")
 
-    has_many association_name, resourcify_options
+    has_many association_name, class_name: resourcify_options[:class_name], as: resourcify_options[:as], dependent: resourcify_options[:dependent] 
 
     self.resource_adapter = Rolify::Adapter::Base.create("resource_adapter", self.role_cname, self.name)
     @@resource_types << self.name
